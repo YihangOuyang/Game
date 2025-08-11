@@ -1,0 +1,106 @@
+--使用前请认真阅读注释
+--使用前请认真阅读注释
+--使用前请认真阅读注释
+ 
+purgatory_key = 5 --炼狱开火键：使用侧键填4或5；使用左键填1,并按52行提示修改代码
+replace_h_key = 8 --替换乱斗金盾H键，防止丢枪
+Consecutive_jumps_key = 7 --跳蹲蹲，用来快速上箱
+--Grenade_fast_refill = 8 --救世主榴弹秒换 需要改键 参数未测试
+flash_squat = 0 --侧键闪蹲
+switch_key = 3 --单击鼠标滚轮控制状态切换（开关）
+switch = true  --宏默认状态（状态1/开启）
+ 
+ 
+--下面一部分代码为正态分布随机函数的实现，不懂勿动
+EnablePrimaryMouseButtonEvents(true)
+math.randomseed(GetDate("%H%M%S"):reverse()) 
+function generate_normal_random(mean, stddev)
+    local u1 = math.random()
+    local u2 = math.random()  
+    local z0 = math.sqrt(-2.0 * math.log(u1)) * math.cos(2.0 * math.pi * u2)
+    return math.floor(mean + z0 * stddev + 0.5)
+end
+ 
+function random(m, n)
+    local mean = (m + n) / 2
+    local sigma = (n - m) / (2 * 1.645)  -- 数字越大随机数越集中
+    local generated_random = generate_normal_random(mean, sigma)
+    while (generated_random < m) do
+        generated_random = math.random(m, n)
+    end
+    if (m == 10) then
+        OutputLogMessage("%f\n", generated_random)
+    end
+    return generated_random
+end
+--随机函数结束
+ 
+ 
+--鼠标按键状态监听函数
+function OnEvent(event, arg)
+    if (event == "MOUSE_BUTTON_PRESSED") then
+        if (arg == switch_key) then
+            switch = not switch
+            if (switch) then
+                OutputLogMessage("Macro is on!\n")
+            else
+                OutputLogMessage("Macro is off!\n")
+            end
+        elseif (switch) then
+ 
+            --炼狱速点
+            if (arg == purgatory_key) then
+                repeat
+                    --[[如果使用左键开火，请使用下列代码进行替换，并将游戏内开火键设置为L
+ 
+                    PressKey("L")
+                    Sleep(random(140, 152))
+                    ReleaseKey("L")
+                    Sleep(random(10, 15))
+ 
+                    ]]
+ 
+                    --被替换代码起始区
+                    PressMouseButton(1)
+                    Sleep(random(140, 152))
+                    ReleaseMouseButton(1)
+                    Sleep(random(10, 20))
+                    --被替换代码结束区
+                until not IsMouseButtonPressed(purgatory_key)
+            end  
+ 
+            --改键位H
+            if (arg == replace_h_key) then
+                PressKey("H")
+                Sleep(random(10, 20))
+                ReleaseKey("H")
+            end
+ 
+            --跳蹲蹲快速上箱子
+            if (arg == Consecutive_jumps_key) then
+                PressKey("spacebar")
+                Sleep(math.random(164,172))
+                ReleaseKey("spacebar")                      
+                Sleep(math.random(30,40))          
+                PressKey("lctrl")
+                Sleep(math.random(8,16))   
+                ReleaseKey("lctrl")
+                Sleep(math.random(8,16))
+                PressKey("lctrl")
+                Sleep(math.random(8,16))   
+                ReleaseKey("lctrl")   
+            end
+ 
+            --无限闪蹲
+            if (arg == flash_squat) then
+                repeat
+                    PressKey("lctrl")
+                    Sleep(random(8, 20))
+                    ReleaseKey("lctrl")  
+                    Sleep(random(8, 20))
+                until not IsMouseButtonPressed(flash_squat)
+            end
+        
+        end
+    end
+end
